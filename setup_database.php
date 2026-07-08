@@ -1,33 +1,40 @@
 <?php
-// setup_database.php - Complete database setup
+// setup_database.php - Remote Database Setup
 
-echo "<h2>📦 Waste Management System - Database Setup</h2>";
+echo "<h2>📦 Waste Management System - Remote Database Setup</h2>";
 
-$servername = "localhost";
-$username = "root";
-$password = "";
+// Remote database credentials
+$servername = "dbadmin.dcism.org";
+$username = "s25101180_IM2";        
+$password = "account4#!";   
+$dbname = "s25101180_IM2";          
 
-$conn = new mysqli($servername, $username, $password);
+echo "<p><strong>Host:</strong> $servername</p>";
+echo "<p><strong>Database:</strong> $dbname</p>";
+echo "<p><strong>Username:</strong> $username</p>";
+echo "<hr>";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("<p style='color:red;'>❌ Connection failed: " . $conn->connect_error . "</p>");
 }
 
-// Create database using your table name
-$dbname = "s25101180_im2";
-$conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
-$conn->select_db($dbname);
+echo "<p style='color:green;'>✅ Connected successfully to: $dbname</p>";
 
-echo "<p style='color:green;'>✅ Using database: $dbname</p>";
+// Check if tables exist
+$tablesExist = $conn->query("SHOW TABLES LIKE 'collection_routes'")->num_rows > 0;
 
-// Drop existing tables to start fresh
-$tables = ['pickup_logs', 'collection_fleet', 'collection_routes', 'waste_categories', 'disposal_facilities', 'users'];
-foreach ($tables as $table) {
-    $conn->query("DROP TABLE IF EXISTS $table");
+if ($tablesExist) {
+    echo "<p style='color:orange;'>⚠️ Tables already exist. Skipping creation.</p>";
+    echo "<p><a href='index.html'>Go to System →</a></p>";
+    $conn->close();
+    exit;
 }
 
-// Create tables based on your schema
-$sqls = [
+// Create tables
+$tables = [
     "collection_routes" => "CREATE TABLE collection_routes (
         RouteID VARCHAR(20) PRIMARY KEY,
         RouteName VARCHAR(150) NOT NULL,
@@ -44,8 +51,7 @@ $sqls = [
         AssignedRouteID VARCHAR(20),
         VehicleType VARCHAR(100),
         CurrentDriver VARCHAR(100),
-        LastService DATE,
-        FOREIGN KEY (AssignedRouteID) REFERENCES collection_routes(RouteID) ON DELETE SET NULL
+        LastService DATE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
     
     "waste_categories" => "CREATE TABLE waste_categories (
@@ -74,11 +80,7 @@ $sqls = [
         EndTime TIME,
         Weight DECIMAL(8,2),
         Remarks TEXT,
-        Status VARCHAR(50) DEFAULT 'Completed',
-        FOREIGN KEY (RouteID) REFERENCES collection_routes(RouteID) ON DELETE SET NULL,
-        FOREIGN KEY (TruckID) REFERENCES collection_fleet(TruckID) ON DELETE SET NULL,
-        FOREIGN KEY (CategoryID) REFERENCES waste_categories(CategoryID) ON DELETE SET NULL,
-        FOREIGN KEY (FacilityID) REFERENCES disposal_facilities(FacilityID) ON DELETE SET NULL
+        Status VARCHAR(50) DEFAULT 'Completed'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
     
     "users" => "CREATE TABLE users (
@@ -91,8 +93,8 @@ $sqls = [
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 ];
 
-foreach ($sqls as $name => $sql) {
-    if ($conn->query($sql) === TRUE) {
+foreach ($tables as $name => $sql) {
+    if ($conn->query($sql)) {
         echo "<p style='color:green;'>✅ Table '$name' created</p>";
     } else {
         echo "<p style='color:red;'>❌ Error creating '$name': " . $conn->error . "</p>";
@@ -100,9 +102,9 @@ foreach ($sqls as $name => $sql) {
 }
 
 // Insert sample data
-echo "<hr><h3>📊 Inserting Sample Data...</h3>";
+echo "<hr><h3>📊 Inserting sample data...</h3>";
 
-$conn->query("INSERT INTO collection_routes VALUES
+$conn->query("INSERT IGNORE INTO collection_routes VALUES
     ('R001', 'Route1-Downtown', 'Downtown commercial area', 'Monday', 'Daily'),
     ('R002', 'Route2-NorthZone', 'North residential area', 'Tuesday', 'Daily'),
     ('R003', 'Route3-SouthZone', 'South residential area', 'Wednesday', 'Daily'),
@@ -110,7 +112,7 @@ $conn->query("INSERT INTO collection_routes VALUES
     ('R005', 'Route5-WestZone', 'West industrial area', 'Friday', 'Daily')");
 echo "<p>✅ Routes inserted</p>";
 
-$conn->query("INSERT INTO collection_fleet VALUES
+$conn->query("INSERT IGNORE INTO collection_fleet VALUES
     ('V001', 'ABC-1234', '15,000kg', 'Active', 'R001', 'Compactor Truck', 'John Smith', '2024-05-10'),
     ('V002', 'DEF-5678', '12,000kg', 'Active', 'R002', 'Compactor Truck', 'Michael Brown', '2024-05-08'),
     ('V003', 'GHI-9012', '10,000kg', 'Under Maintenance', 'R003', 'Rear Loader', NULL, '2024-05-02'),
@@ -119,7 +121,7 @@ $conn->query("INSERT INTO collection_fleet VALUES
     ('V006', 'PQR-2468', '10,000kg', 'Active', NULL, 'Rear Loader', 'James Taylor', '2024-05-09')");
 echo "<p>✅ Fleet inserted</p>";
 
-$conn->query("INSERT INTO waste_categories VALUES
+$conn->query("INSERT IGNORE INTO waste_categories VALUES
     ('C001', 'Recyclable (Plastic)', 1),
     ('C002', 'Recyclable (Paper)', 1),
     ('C003', 'Organic Waste', 0),
@@ -128,7 +130,7 @@ $conn->query("INSERT INTO waste_categories VALUES
     ('C006', 'Glass', 1)");
 echo "<p>✅ Categories inserted</p>";
 
-$conn->query("INSERT INTO disposal_facilities VALUES
+$conn->query("INSERT IGNORE INTO disposal_facilities VALUES
     ('F001', 'North Recycling Center', 'Recycling Facility', '123 North Ave', 'Maria Santos', '123-4567'),
     ('F002', 'South Waste Hub', 'Transfer Station', '456 South Road', 'Juan Cruz', '456-7890'),
     ('F003', 'East Processing Plant', 'Processing Facility', '789 East Park', 'Ana Reyes', '789-0123'),
@@ -137,7 +139,7 @@ $conn->query("INSERT INTO disposal_facilities VALUES
 echo "<p>✅ Facilities inserted</p>";
 
 // Insert sample pickup logs
-for ($i = 0; $i < 20; $i++) {
+for ($i = 0; $i < 10; $i++) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $weight = rand(200, 1000);
     $routes = ['R001','R002','R003','R004','R005'];
@@ -156,34 +158,19 @@ for ($i = 0; $i < 20; $i++) {
         ('$date', '$route', '$truck', '$category', '$facility', 
         '08:00:00', '10:30:00', $weight, 'Regular collection')");
 }
-echo "<p>✅ 20 pickup logs inserted</p>";
+echo "<p>✅ Sample pickup logs inserted</p>";
 
 // Create admin user
 $conn->query("INSERT IGNORE INTO users (Username, Password, FullName, Role) VALUES
-    ('admin', 'admin123', 'Operations Team', 'Administrator'),
-    ('user', 'user123', 'Staff Member', 'User')");
-echo "<p>✅ Users created (admin/admin123)</p>";
-
-// Create view for dashboard
-$conn->query("CREATE OR REPLACE VIEW dashboard_stats AS
-    SELECT 
-        COUNT(*) as total_collections,
-        SUM(Weight) as total_waste,
-        AVG(Weight) as avg_weight,
-        COUNT(DISTINCT DATE(CollectionDate)) as days_active,
-        SUM(CASE WHEN wc.IsRecyclable = 1 THEN Weight ELSE 0 END) as recyclable_waste,
-        COUNT(DISTINCT RouteID) as active_routes,
-        COUNT(DISTINCT TruckID) as active_trucks
-    FROM pickup_logs pl
-    LEFT JOIN waste_categories wc ON pl.CategoryID = wc.CategoryID");
-
-echo "<p style='color:green;'>✅ View 'dashboard_stats' created</p>";
+    ('admin', 'admin123', 'Operations Team', 'Administrator')");
+echo "<p>✅ Admin user created (admin/admin123)</p>";
 
 echo "<hr>";
 echo "<h3>✅ Setup Complete!</h3>";
 echo "<p><strong>Database:</strong> $dbname</p>";
+echo "<p><strong>Host:</strong> $servername</p>";
 echo "<p><strong>Login:</strong> admin / admin123</p>";
-echo "<p><a href='index.php'>Go to Waste Management System →</a></p>";
+echo "<p><a href='index.html'>Go to System →</a></p>";
 
 $conn->close();
 ?>
