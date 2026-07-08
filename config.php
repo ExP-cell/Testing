@@ -2,7 +2,7 @@
 // config.php - Database configuration
 
 // Database credentials
-$servername = "https://dbadmin.dcism.org/";
+$servername = "dbadmin.dcism.org";
 $username = "s25101180_IM2";
 $password = "account4#!";
 $dbname = "s25101180_im2";  // Your table name
