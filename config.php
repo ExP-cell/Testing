@@ -1,11 +1,11 @@
 <?php
-// config.php - Database configuration
+// config.php - Remote Database Configuration
 
-// Database credentials
+// Remote database credentials
 $servername = "dbadmin.dcism.org";
-$username = "s25101180_IM2";
-$password = "account4#!";
-$dbname = "s25101180_im2";  // Your table name
+$username = "s25101180_IM2";        // Your username with underscore
+$password = "YOUR_PASSWORD_HERE";    // ⚠️ CHANGE THIS
+$dbname = "s25101180_IM2";           // Your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
