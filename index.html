@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management & Recycling Log System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a3443; }
+        
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            background: linear-gradient(135deg, #0b2d3b 0%, #1a4b5e 100%);
+        }
+        .login-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            color: white;
+        }
+        .login-left h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
+        .login-left h1 span { color: #b7e4c7; }
+        .login-left p { font-size: 1.2rem; opacity: 0.8; max-width: 400px; }
+        .login-right {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            border-radius: 40px 0 0 40px;
+        }
+        .login-right h2 { font-size: 2rem; color: #0b2d3b; margin-bottom: 0.5rem; }
+        .login-right .subtitle { color: #6b8a9b; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.3rem; color: #1a3443; }
+        .form-group input { 
+            width: 100%; padding: 0.8rem 1rem; border: 1px solid #d0dae6; 
+            border-radius: 12px; font-size: 1rem; 
+        }
+        .form-group input:focus { outline: none; border-color: #0b2d3b; box-shadow: 0 0 0 3px rgba(11,45,59,0.1); }
+        .login-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .btn-login { 
+            width: 100%; padding: 0.9rem; background: #0b2d3b; color: white; 
+            border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; 
+        }
+        .btn-login:hover { background: #1a4b5e; }
+        .login-footer { text-align: center; margin-top: 2rem; color: #6b8a9b; font-size: 0.9rem; }
+        .error { color: #dc3545; background: #fce4e4; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+
+        /* Sidebar */
+        .app { display: none; }
+        .sidebar {
+            width: 260px;
+            background: #0b2d3b;
+            min-height: 100vh;
+            padding: 1.5rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        .sidebar-brand i { font-size: 1.8rem; color: #b7e4c7; }
+        .sidebar-brand span { font-weight: 800; font-size: 1.2rem; }
+        .sidebar-brand small { display: block; font-weight: 400; font-size: 0.7rem; opacity: 0.6; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+        }
+        .sidebar-menu li:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-menu li.active { background: #b7e4c7; color: #0b2d3b; font-weight: 600; }
+        .sidebar-menu li i { width: 24px; margin-right: 10px; }
+        .sidebar-menu .logout { margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .top-bar h1 { font-size: 1.8rem; }
+        .top-bar .user { display: flex; align-items: center; gap: 1rem; }
+        .top-bar .user .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #0b2d3b; color: white;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+        }
+        .stat-card .label { color: #6b8a9b; font-size: 0.85rem; font-weight: 500; }
+        .stat-card .value { font-size: 2rem; font-weight: 700; color: #0b2d3b; margin: 0.25rem 0; }
+        .stat-card .change { font-size: 0.85rem; color: #28a745; }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+            overflow: hidden;
+            margin-top: 1.5rem;
+        }
+        .table-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .table-header .search-box {
+            display: flex;
+            align-items: center;
+            background: #f2f6fa;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            border: 1px solid #e2e9f0;
+        }
+        .table-header .search-box input { border: none; background: transparent; padding: 0.5rem; outline: none; }
+        .table-responsive { overflow-x: auto; padding: 0 1.5rem 1.5rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { 
+            text-align: left; padding: 0.75rem 0.5rem; 
+            color: #6b8a9b; font-weight: 600; font-size: 0.75rem; 
+            text-transform: uppercase; border-bottom: 1px solid #eef2f6; 
+        }
+        td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #eef2f6; }
+        
+        /* Badges */
+        .badge { padding: 0.2rem 0.6rem; border-radius: 40px; font-size: 0.75rem; font-weight: 500; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-primary { background: #cce5ff; color: #004085; }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-primary { background: #0b2d3b; color: white; }
+        .btn-primary:hover { background: #1a4b5e; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-outline { background: transparent; border: 1px solid #d0dae6; color: #1a3443; }
+        .btn-outline:hover { background: #f2f6fa; }
+        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 1.5rem; }
+        .modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal .form-group { margin-bottom: 1rem; }
+        .modal .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2a4d5e;
+            margin-bottom: 0.3rem;
+        }
+        .modal .form-group input,
+        .modal .form-group select,
+        .modal .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d0dae6;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .modal .form-group textarea { resize: vertical; min-height: 60px; }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .required { color: #dc3545; }
+
+        /* Charts */
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+        }
+        .chart-box h3 { font-size: 1rem; margin-bottom: 1rem; color: #2a4d5e; }
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(180deg, #e1eef6 0%, #f4f7fb 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b8a9b;
+        }
+
+        /* Page sections */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 2rem; color: #6b8a9b; }
+        .loading i { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { width: 200px; padding: 1rem; }
+            .main-content { margin-left: 200px; padding: 1rem; }
+            .login-left, .login-right { padding: 2rem; }
+            .login-left h1 { font-size: 2rem; }
+            .chart-container { grid-template-columns: 1fr; }
+            .modal .form-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div class="login-container" id="loginPage">
+    <div class="login-left">
+        <h1>WASTE<span>MANAGEMENT</span></h1>
+        <p>Manage waste collection, track recycling, and keep our environment clean.</p>
+        <div style="margin-top: 2rem;">
+            <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <i class="fas fa-shield-alt"></i> Secure & Reliable
+            </span>
+        </div>
+    </div>
+    <div class="login-right">
+        <h2>Welcome Back!</h2>
+        <p class="subtitle">Please log in to continue.</p>
+        <div class="error" id="loginError">Invalid username or password</div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            </div>
+            <div class="login-options">
+                <label><input type="checkbox" id="rememberMe"> Remember me</label>
+                <a href="#" style="color: #0b2d3b; text-decoration: none; font-size: 0.9rem;">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn-login">LOGIN</button>
+        </form>
+        <div class="login-footer">© 2026 Waste Management System</div>
+    </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="mainApp">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-recycle"></i>
+            <div>
+                <span>WASTE</span>
+                <small>MANAGEMENT & RECYCLING LOG</small>
+            </div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</li>
+            <li data-page="routes"><i class="fas fa-route"></i> Collection Routes</li>
+            <li data-page="pickups"><i class="fas fa-clipboard-list"></i> Pickup Logs</li>
+            <li data-page="categories"><i class="fas fa-tags"></i> Waste Categories</li>
+            <li data-page="fleet"><i class="fas fa-truck"></i> Collection Fleet</li>
+            <li data-page="facilities"><i class="fas fa-industry"></i> Disposal Facilities</li>
+            <li data-page="reports"><i class="fas fa-chart-bar"></i> Reports</li>
+            <li data-page="maintenance"><i class="fas fa-wrench"></i> Maintenance</li>
+            <li data-page="users"><i class="fas fa-users"></i> Users</li>
+            <li class="logout" data-page="logout"><i class="fas fa-sign-out-alt"></i> Logout</li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="user">
+                <span>Welcome, <span id="userName">Operations Team</span>!</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+            </div>
+        </div>
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="page-dashboard" class="page-section active">
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card"><div class="label">Today's Collections</div><div class="value" id="statToday">0</div></div>
+                <div class="stat-card"><div class="label">Total Waste (kg)</div><div class="value" id="statTotal">0</div></div>
+                <div class="stat-card"><div class="label">Recyclable (kg)</div><div class="value" id="statRecyclable">0</div></div>
+                <div class="stat-card"><div class="label">Active Trucks</div><div class="value" id="statTrucks">0</div></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-box">
+                    <h3>Collection Overview</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-bar" style="font-size:3rem; opacity:0.3;"></i>
+                        <span style="margin-left:1rem;">Chart: Weekly Collection Trends</span>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <h3>Waste by Category</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-pie" style="font-size:3rem; opacity:0.3;"></i>
+                        <span style="margin-left:1rem;">Chart: Waste Distribution</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Recent Pickup Logs</h3>
+                    <a href="#" class="btn btn-outline btn-sm" onclick="switchPage('pickups')">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Date</th><th>Route</th><th>Truck</th><th>Weight (kg)</th><th>Category</th></tr></thead>
+                        <tbody id="recentLogs">
+                            <tr><td colspan="5" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== COLLECTION ROUTES ===== -->
+        <div id="page-routes" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Collection Routes</h3>
+                    <button class="btn btn-primary" onclick="openModal('routeModal')"><i class="fas fa-plus"></i> Add Route</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>RouteID</th><th>Route Name</th><th>Area</th><th>Day</th><th>Frequency</th><th>Actions</th></tr></thead>
+                        <tbody id="routesTable">
+                            <tr><td colspan="6" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PICKUP LOGS ===== -->
+        <div id="page-pickups" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Pickup Logs</h3>
+                    <button class="btn btn-primary" onclick="openModal('pickupModal')"><i class="fas fa-plus"></i> Add Pickup Log</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Date</th><th>Route</th><th>Truck</th><th>Category</th><th>Facility</th><th>Weight</th><th>Actions</th></tr></thead>
+                        <tbody id="pickupTable">
+                            <tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== WASTE CATEGORIES ===== -->
+        <div id="page-categories" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Waste Categories</h3>
+                    <button class="btn btn-primary" onclick="openModal('categoryModal')"><i class="fas fa-plus"></i> Add Category</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>CategoryID</th><th>Category Name</th><th>Recyclable</th><th>Actions</th></tr></thead>
+                        <tbody id="categoriesTable">
+                            <tr><td colspan="4" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FLEET ===== -->
+        <div id="page-fleet" class="page-section">
+            <div class="stats-grid" id="fleetStats">
+                <div class="stat-card"><div class="label">Total Vehicles</div><div class="value" id="fleetTotal">0</div></div>
+                <div class="stat-card"><div class="label">Operational</div><div class="value" id="fleetOperational" style="color:#28a745;">0</div></div>
+                <div class="stat-card"><div class="label">Under Maintenance</div><div class="value" id="fleetMaintenance" style="color:#ffc107;">0</div></div>
+                <div class="stat-card"><div class="label">Out of Service</div><div class="value" id="fleetOut" style="color:#dc3545;">0</div></div>
+            </div>
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>All Vehicles</h3>
+                    <button class="btn btn-primary" onclick="openModal('fleetModal')"><i class="fas fa-plus"></i> Add Vehicle</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Vehicle</th><th>License</th><th>Type</th><th>Capacity</th><th>Status</th><th>Driver</th><th>Actions</th></tr></thead>
+                        <tbody id="fleetTable">
+                            <tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FACILITIES ===== -->
+        <div id="page-facilities" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Disposal Facilities</h3>
+                    <button class="btn btn-primary" onclick="openModal('facilityModal')"><i class="fas fa-plus"></i> Add Facility</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>FacilityID</th><th>Name</th><th>Type</th><th>Address</th><th>Actions</th></tr></thead>
+                        <tbody id="facilitiesTable">
+                            <tr><td colspan="5" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== REPORTS ===== -->
+        <div id="page-reports" class="page-section">
+            <div class="stats-grid" id="reportStats">
+                <div class="stat-card"><div class="label">Total Waste (kg)</div><div class="value" id="reportTotal">0</div></div>
+                <div class="stat-card"><div class="label">Recyclable (kg)</div><div class="value" id="reportRecyclable" style="color:#28a745;">0</div></div>
+                <div class="stat-card"><div class="label">Total Collections</div><div class="value" id="reportCollections">0</div></div>
+                <div class="stat-card"><div class="label">Avg per Collection</div><div class="value" id="reportAvg">0</div></div>
+            </div>
+        </div>
+
+        <!-- ===== MAINTENANCE ===== -->
+        <div id="page-maintenance" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Vehicles Under Maintenance</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Vehicle</th><th>License</th><th>Status</th><th>Last Service</th><th>Actions</th></tr></thead>
+                        <tbody id="maintenanceTable">
+                            <tr><td colspan="5" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== USERS ===== -->
+        <div id="page-users" class="page-section">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Users</h3>
+                    <button class="btn btn-primary" onclick="openModal('userModal')"><i class="fas fa-plus"></i> Add User</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Role</th><th>Actions</th></tr></thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="5" class="loading"><i class="fas fa-spinner"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Route Modal -->
+<div class="modal-overlay" id="routeModal">
+    <div class="modal">
+        <h2><i class="fas fa-route"></i> <span id="routeModalTitle">Add Collection Route</span></h2>
+        <form id="routeForm" onsubmit="saveRecord(event,'collection_routes','routeModal')">
+            <input type="hidden" id="routeEditId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Route ID <span class="required">*</span></label>
+                    <input type="text" id="routeId" placeholder="e.g., R006" required>
+                </div>
+                <div class="form-group">
+                    <label>Route Name <span class="required">*</span></label>
+                    <input type="text" id="routeName" placeholder="Route name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Area Description</label>
+                <textarea id="routeArea" placeholder="Describe the area"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Scheduled Day</label>
+                    <select id="routeDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Frequency</label>
+                    <select id="routeFrequency">
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Bi-weekly">Bi-weekly</option>
+                        <option value="Monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('routeModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Pickup Modal -->
+<div class="modal-overlay" id="pickupModal">
+    <div class="modal">
+        <h2><i class="fas fa-clipboard-list"></i> <span id="pickupModalTitle">Add Pickup Log</span></h2>
+        <form id="pickupForm" onsubmit="savePickup(event)">
+            <input type="hidden" id="pickupEditId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Route <span class="required">*</span></label>
+                    <select id="pickupRoute" required>
+                        <option value="">Select Route</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Truck <span class="required">*</span></label>
+                    <select id="pickupTruck" required>
+                        <option value="">Select Truck</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <select id="pickupCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Facility <span class="required">*</span></label>
+                    <select id="pickupFacility" required>
+                        <option value="">Select Facility</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Collection Date <span class="required">*</span></label>
+                <input type="date" id="pickupDate" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Time <span class="required">*</span></label>
+                    <input type="time" id="pickupStart" required>
+                </div>
+                <div class="form-group">
+                    <label>End Time <span class="required">*</span></label>
+                    <input type="time" id="pickupEnd" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Weight (kg) <span class="required">*</span></label>
+                <input type="number" id="pickupWeight" step="0.01" placeholder="Enter weight" required>
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <textarea id="pickupRemarks" placeholder="Enter remarks (optional)"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('pickupModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+    <div class="modal">
+        <h2><i class="fas fa-tags"></i> <span id="categoryModalTitle">Add Waste Category</span></h2>
+        <form id="categoryForm" onsubmit="saveRecord(event,'waste_categories','categoryModal')">
+            <input type="hidden" id="categoryEditId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category ID <span class="required">*</span></label>
+                    <input type="text" id="categoryId" placeholder="e.g., C007" required>
+                </div>
+                <div class="form-group">
+                    <label>Category Name <span class="required">*</span></label>
+                    <input type="text" id="categoryName" placeholder="Category name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="categoryRecyclable" value="1"> Is Recyclable?</label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('categoryModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Fleet Modal -->
+<div class="modal-overlay" id="fleetModal">
+    <div class="modal">
+        <h2><i class="fas fa-truck"></i> <span id="fleetModalTitle">Add Vehicle</span></h2>
+        <form id="fleetForm" onsubmit="saveRecord(event,'collection_fleet','fleetModal')">
+            <input type="hidden" id="fleetEditId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Vehicle ID <span class="required">*</span></label>
+                    <input type="text" id="fleetId" placeholder="e.g., V008" required>
+                </div>
+                <div class="form-group">
+                    <label>License Plate <span class="required">*</span></label>
+                    <input type="text" id="fleetPlate" placeholder="ABC-1234" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Vehicle Type</label>
+                    <select id="fleetType">
+                        <option value="Compactor Truck">Compactor Truck</option>
+                        <option value="Rear Loader">Rear Loader</option>
+                        <option value="Tipper Truck">Tipper Truck</option>
+                        <option value="Roll-off Truck">Roll-off Truck</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Capacity</label>
+                    <select id="fleetCapacity">
+                        <option value="8,000kg">8,000kg</option>
+                        <option value="10,000kg">10,000kg</option>
+                        <option value="12,000kg">12,000kg</option>
+                        <option value="15,000kg">15,000kg</option>
+                        <option value="16,000kg">16,000kg</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="fleetStatus">
+                        <option value="Active">Active</option>
+                        <option value="Under Maintenance">Under Maintenance</option>
+                        <option value="Out of Service">Out of Service</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Current Driver</label>
+                    <input type="text" id="fleetDriver" placeholder="Driver name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Last Service Date</label>
+                <input type="date" id="fleetService">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('fleetModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Facility Modal -->
+<div class="modal-overlay" id="facilityModal">
+    <div class="modal">
+        <h2><i class="fas fa-industry"></i> <span id="facilityModalTitle">Add Disposal Facility</span></h2>
+        <form id="facilityForm" onsubmit="saveRecord(event,'disposal_facilities','facilityModal')">
+            <input type="hidden" id="facilityEditId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Facility ID <span class="required">*</span></label>
+                    <input type="text" id="facilityId" placeholder="e.g., F006" required>
+                </div>
+                <div class="form-group">
+                    <label>Facility Name <span class="required">*</span></label>
+                    <input type="text" id="facilityName" placeholder="Facility name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Facility Type</label>
+                <select id="facilityType">
+                    <option value="Recycling Facility">Recycling Facility</option>
+                    <option value="Transfer Station">Transfer Station</option>
+                    <option value="Processing Facility">Processing Facility</option>
+                    <option value="Composting Facility">Composting Facility</option>
+                    <option value="Materials Recovery Facility">Materials Recovery Facility</option>
+                    <option value="Landfill">Landfill</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="facilityAddress" placeholder="Full address"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Contact Person</label>
+                    <input type="text" id="facilityContact" placeholder="Contact person">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" id="facilityPhone" placeholder="Phone number">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('facilityModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="userModal">
+    <div class="modal">
+        <h2><i class="fas fa-user-plus"></i> Add User</h2>
+        <form id="userForm" onsubmit="saveUser(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username <span class="required">*</span></label>
+                    <input type="text" id="userUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="userFullname" placeholder="Full name" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Password <span class="required">*</span></label>
+                    <input type="password" id="userPassword" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="userRole">
+                        <option value="User">User</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('userModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// =============================================
+// APPLICATION STATE
+// =============================================
+let currentUser = null;
+let allData = {
+    routes: [],
+    pickups: [],
+    categories: [],
+    fleet: [],
+    facilities: [],
+    users: []
+};
+
+// =============================================
+// LOGIN / LOGOUT
+// =============================================
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    
+    // Simple login check (in production, this should call the API)
+    if (username === 'admin' && password === 'admin123') {
+        currentUser = { username: 'admin', fullname: 'Operations Team' };
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        document.getElementById('userName').textContent = currentUser.fullname;
+        loadAllData();
+    } else {
+        errorEl.style.display = 'block';
+        setTimeout(() => errorEl.style.display = 'none', 3000);
+    }
+});
+
+function logout() {
+    currentUser = null;
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+}
+
+// =============================================
+// PAGE NAVIGATION
+// =============================================
+function switchPage(page) {
+    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+    
+    document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.sidebar-menu li[data-page="${page}"]`)?.classList.add('active');
+    
+    const titles = {
+        dashboard: 'Dashboard',
+        routes: 'Collection Routes',
+        pickups: 'Pickup Logs',
+        categories: 'Waste Categories',
+        fleet: 'Collection Fleet',
+        facilities: 'Disposal Facilities',
+        reports: 'Reports',
+        maintenance: 'Maintenance',
+        users: 'Users'
+    };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+    
+    if (page === 'logout') {
+        logout();
+    }
+}
+
+document.querySelectorAll('.sidebar-menu li').forEach(item => {
+    item.addEventListener('click', function() {
+        const page = this.dataset.page;
+        if (page) switchPage(page);
+    });
+});
+
+// =============================================
+// MODAL FUNCTIONS
+// =============================================
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    const form = document.getElementById(modalId).querySelector('form');
+    if (form) form.reset();
+    document.querySelectorAll('input[disabled]').forEach(el => el.disabled = false);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+        }
+    });
+});
+
+// =============================================
+// API CALLS
+// =============================================
+function apiCall(endpoint, method = 'GET', data = null) {
+    const options = {
+        method: method,
+        headers: { 'Content-Type': 'application/json' }
+    };
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+    return fetch(endpoint, options)
+        .then(res => res.json())
+        .then(result => {
+            if (result.error) throw new Error(result.error);
+            return result;
+        });
+}
+
+// =============================================
+// LOAD ALL DATA
+// =============================================
+function loadAllData() {
+    // Load routes
+    apiCall('api.php?table=collection_routes')
+        .then(data => {
+            allData.routes = data;
+            renderRoutes();
+            populateSelects();
+        })
+        .catch(err => console.error('Error loading routes:', err));
+    
+    // Load pickups
+    apiCall('api.php?table=pickup_logs')
+        .then(data => {
+            allData.pickups = data;
+            renderPickups();
+            renderRecentLogs();
+            updateDashboardStats();
+            updateReportStats();
+        })
+        .catch(err => console.error('Error loading pickups:', err));
+    
+    // Load categories
+    apiCall('api.php?table=waste_categories')
+        .then(data => {
+            allData.categories = data;
+            renderCategories();
+            populateSelects();
+        })
+        .catch(err => console.error('Error loading categories:', err));
+    
+    // Load fleet
+    apiCall('api.php?table=collection_fleet')
+        .then(data => {
+            allData.fleet = data;
+            renderFleet();
+            updateFleetStats();
+            renderMaintenance();
+        })
+        .catch(err => console.error('Error loading fleet:', err));
+    
+    // Load facilities
+    apiCall('api.php?table=disposal_facilities')
+        .then(data => {
+            allData.facilities = data;
+            renderFacilities();
+            populateSelects();
+        })
+        .catch(err => console.error('Error loading facilities:', err));
+    
+    // Load users
+    apiCall('api.php?table=users')
+        .then(data => {
+            allData.users = data;
+            renderUsers();
+        })
+        .catch(err => console.error('Error loading users:', err));
+}
+
+// =============================================
+// RENDER FUNCTIONS
+// =============================================
+
+// Render Routes
+function renderRoutes() {
+    const tbody = document.getElementById('routesTable');
+    if (allData.routes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#6b8a9b;">No routes found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.routes.map(route => `
+        <tr>
+            <td><strong>${route.RouteID}</strong></td>
+            <td>${route.RouteName}</td>
+            <td>${route.AreaDescription || '—'}</td>
+            <td>${route.ScheduledDay || '—'}</td>
+            <td>${route.Frequency || '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editRecord('collection_routes','${route.RouteID}','routeModal')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('collection_routes','${route.RouteID}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Pickups
+function renderPickups() {
+    const tbody = document.getElementById('pickupTable');
+    if (allData.pickups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#6b8a9b;">No pickup logs found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.pickups.map(pickup => `
+        <tr>
+            <td>${formatDate(pickup.CollectionDate)}</td>
+            <td>${pickup.RouteID || '—'}</td>
+            <td>${pickup.TruckID || '—'}</td>
+            <td>${getCategoryName(pickup.CategoryID) || '—'}</td>
+            <td>${pickup.FacilityID || '—'}</td>
+            <td>${pickup.Weight ? Number(pickup.Weight).toFixed(0) : '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editPickup(${pickup.LogID})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('pickup_logs',${pickup.LogID})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Categories
+function renderCategories() {
+    const tbody = document.getElementById('categoriesTable');
+    if (allData.categories.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:#6b8a9b;">No categories found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.categories.map(cat => `
+        <tr>
+            <td><strong>${cat.CategoryID}</strong></td>
+            <td>${cat.CategoryName}</td>
+            <td><span class="badge ${cat.IsRecyclable ? 'badge-success' : 'badge-danger'}">${cat.IsRecyclable ? 'Yes' : 'No'}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editRecord('waste_categories','${cat.CategoryID}','categoryModal')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('waste_categories','${cat.CategoryID}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Fleet
+function renderFleet() {
+    const tbody = document.getElementById('fleetTable');
+    if (allData.fleet.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#6b8a9b;">No vehicles found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.fleet.map(vehicle => `
+        <tr>
+            <td><strong>${vehicle.TruckID}</strong></td>
+            <td>${vehicle.TruckNumber}</td>
+            <td>${vehicle.VehicleType || 'N/A'}</td>
+            <td>${vehicle.Capacity || '—'}</td>
+            <td><span class="badge ${vehicle.Status === 'Active' ? 'badge-success' : (vehicle.Status === 'Under Maintenance' ? 'badge-warning' : 'badge-danger')}">${vehicle.Status || 'Unknown'}</span></td>
+            <td>${vehicle.CurrentDriver || '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editRecord('collection_fleet','${vehicle.TruckID}','fleetModal')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('collection_fleet','${vehicle.TruckID}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Facilities
+function renderFacilities() {
+    const tbody = document.getElementById('facilitiesTable');
+    if (allData.facilities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#6b8a9b;">No facilities found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.facilities.map(facility => `
+        <tr>
+            <td><strong>${facility.FacilityID}</strong></td>
+            <td>${facility.FacilityName}</td>
+            <td>${facility.FacilityType || '—'}</td>
+            <td>${facility.Address || '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editRecord('disposal_facilities','${facility.FacilityID}','facilityModal')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('disposal_facilities','${facility.FacilityID}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Recent Logs
+function renderRecentLogs() {
+    const tbody = document.getElementById('recentLogs');
+    const recent = allData.pickups.slice(0, 5);
+    if (recent.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#6b8a9b;">No recent logs</td></tr>';
+        return;
+    }
+    tbody.innerHTML = recent.map(pickup => `
+        <tr>
+            <td>${formatDate(pickup.CollectionDate)}</td>
+            <td>${pickup.RouteID || '—'}</td>
+            <td>${pickup.TruckID || '—'}</td>
+            <td>${pickup.Weight ? Number(pickup.Weight).toFixed(0) : '—'}</td>
+            <td>${getCategoryName(pickup.CategoryID) || '—'}</td>
+        </tr>
+    `).join('');
+}
+
+// Render Maintenance
+function renderMaintenance() {
+    const tbody = document.getElementById('maintenanceTable');
+    const maintenance = allData.fleet.filter(v => v.Status !== 'Active');
+    if (maintenance.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#6b8a9b;">No vehicles in maintenance</td></tr>';
+        return;
+    }
+    tbody.innerHTML = maintenance.map(vehicle => `
+        <tr>
+            <td><strong>${vehicle.TruckID}</strong></td>
+            <td>${vehicle.TruckNumber}</td>
+            <td><span class="badge badge-warning">${vehicle.Status}</span></td>
+            <td>${vehicle.LastService ? formatDate(vehicle.LastService) : '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="updateStatus('${vehicle.TruckID}','Active')"><i class="fas fa-check"></i> Mark Active</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Render Users
+function renderUsers() {
+    const tbody = document.getElementById('usersTable');
+    if (allData.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#6b8a9b;">No users found</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allData.users.map(user => `
+        <tr>
+            <td>${user.UserID}</td>
+            <td>${user.Username}</td>
+            <td>${user.FullName}</td>
+            <td><span class="badge badge-primary">${user.Role || 'User'}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline" style="color:#dc3545;" onclick="deleteRecord('users',${user.UserID})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// =============================================
+// STATS UPDATES
+// =============================================
+function updateDashboardStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayLogs = allData.pickups.filter(p => p.CollectionDate === today);
+    const totalWeight = allData.pickups.reduce((sum, p) => sum + (p.Weight || 0), 0);
+    const recyclable = allData.pickups
+        .filter(p => {
+            const cat = allData.categories.find(c => c.CategoryID === p.CategoryID);
+            return cat && cat.IsRecyclable;
+        })
+        .reduce((sum, p) => sum + (p.Weight || 0), 0);
+    const activeTrucks = allData.fleet.filter(v => v.Status === 'Active').length;
+    
+    document.getElementById('statToday').textContent = todayLogs.length;
+    document.getElementById('statTotal').textContent = totalWeight.toFixed(0);
+    document.getElementById('statRecyclable').textContent = recyclable.toFixed(0);
+    document.getElementById('statTrucks').textContent = activeTrucks;
+}
+
+function updateFleetStats() {
+    const total = allData.fleet.length;
+    const operational = allData.fleet.filter(v => v.Status === 'Active').length;
+    const maintenance = allData.fleet.filter(v => v.Status === 'Under Maintenance').length;
+    const outOfService = allData.fleet.filter(v => v.Status === 'Out of Service').length;
+    
+    document.getElementById('fleetTotal').textContent = total;
+    document.getElementById('fleetOperational').textContent = operational;
+    document.getElementById('fleetMaintenance').textContent = maintenance;
+    document.getElementById('fleetOut').textContent = outOfService;
+}
+
+function updateReportStats() {
+    const totalWeight = allData.pickups.reduce((sum, p) => sum + (p.Weight || 0), 0);
+    const recyclable = allData.pickups
+        .filter(p => {
+            const cat = allData.categories.find(c => c.CategoryID === p.CategoryID);
+            return cat && cat.IsRecyclable;
+        })
+        .reduce((sum, p) => sum + (p.Weight || 0), 0);
+    const avg = allData.pickups.length > 0 ? totalWeight / allData.pickups.length : 0;
+    
+    document.getElementById('reportTotal').textContent = totalWeight.toFixed(0);
+    document.getElementById('reportRecyclable').textContent = recyclable.toFixed(0);
+    document.getElementById('reportCollections').textContent = allData.pickups.length;
+    document.getElementById('reportAvg').textContent = avg.toFixed(2);
+}
+
+// =============================================
+// POPULATE SELECTS
+// =============================================
+function populateSelects() {
+    // Routes
+    const routeSelect = document.getElementById('pickupRoute');
+    routeSelect.innerHTML = '<option value="">Select Route</option>';
+    allData.routes.forEach(r => {
+        routeSelect.innerHTML += `<option value="${r.RouteID}">${r.RouteID} - ${r.RouteName}</option>`;
+    });
+    
+    // Trucks
+    const truckSelect = document.getElementById('pickupTruck');
+    truckSelect.innerHTML = '<option value="">Select Truck</option>';
+    allData.fleet.filter(v => v.Status === 'Active').forEach(v => {
+        truckSelect.innerHTML += `<option value="${v.TruckID}">${v.TruckID} - ${v.TruckNumber}</option>`;
+    });
+    
+    // Categories
+    const catSelect = document.getElementById('pickupCategory');
+    catSelect.innerHTML = '<option value="">Select Category</option>';
+    allData.categories.forEach(c => {
+        catSelect.innerHTML += `<option value="${c.CategoryID}">${c.CategoryID} - ${c.CategoryName}</option>`;
+    });
+    
+    // Facilities
+    const facSelect = document.getElementById('pickupFacility');
+    facSelect.innerHTML = '<option value="">Select Facility</option>';
+    allData.facilities.forEach(f => {
+        facSelect.innerHTML += `<option value="${f.FacilityID}">${f.FacilityID} - ${f.FacilityName}</option>`;
+    });
+}
+
+// =============================================
+// HELPER FUNCTIONS
+// =============================================
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getCategoryName(categoryId) {
+    const cat = allData.categories.find(c => c.CategoryID === categoryId);
+    return cat ? cat.CategoryName : null;
+}
+
+// =============================================
+// CRUD OPERATIONS
+// =============================================
+
+// Save Record (Generic)
+function saveRecord(e, table, modalId) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = {};
+    let id = '';
+    
+    formData.forEach((value, key) => {
+        if (key.includes('EditId')) {
+            id = value;
+        } else {
+            data[key] = value;
+        }
+    });
+    
+    const method = id ? 'PUT' : 'POST';
+    const url = `api.php?table=${table}${id ? '&id='+id : ''}`;
+    
+    apiCall(url, method, data)
+        .then(result => {
+            if (result.success) {
+                closeModal(modalId);
+                loadAllData();
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+// Save Pickup
+function savePickup(e) {
+    e.preventDefault();
+    const data = {
+        RouteID: document.getElementById('pickupRoute').value,
+        TruckID: document.getElementById('pickupTruck').value,
+        CategoryID: document.getElementById('pickupCategory').value,
+        FacilityID: document.getElementById('pickupFacility').value,
+        CollectionDate: document.getElementById('pickupDate').value,
+        StartTime: document.getElementById('pickupStart').value,
+        EndTime: document.getElementById('pickupEnd').value,
+        Weight: document.getElementById('pickupWeight').value,
+        Remarks: document.getElementById('pickupRemarks').value
+    };
+    
+    const id = document.getElementById('pickupEditId').value;
+    const method = id ? 'PUT' : 'POST';
+    const url = `api.php?table=pickup_logs${id ? '&id='+id : ''}`;
+    
+    apiCall(url, method, data)
+        .then(result => {
+            if (result.success) {
+                closeModal('pickupModal');
+                loadAllData();
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+// Save User
+function saveUser(e) {
+    e.preventDefault();
+    const data = {
+        Username: document.getElementById('userUsername').value,
+        FullName: document.getElementById('userFullname').value,
+        Password: document.getElementById('userPassword').value,
+        Role: document.getElementById('userRole').value
+    };
+    
+    apiCall('api.php?table=users', 'POST', data)
+        .then(result => {
+            if (result.success) {
+                closeModal('userModal');
+                loadAllData();
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+// Delete Record
+function deleteRecord(table, id) {
+    if (!confirm('Delete this record?')) return;
+    
+    apiCall(`api.php?table=${table}&id=${id}`, 'DELETE')
+        .then(result => {
+            if (result.success) {
+                loadAllData();
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+// Update Status
+function updateStatus(vehicleId, status) {
+    if (!confirm(`Set vehicle ${vehicleId} to ${status}?`)) return;
+    
+    apiCall(`api.php?table=collection_fleet&id=${vehicleId}`, 'PUT', { Status: status })
+        .then(result => {
+            if (result.success) {
+                loadAllData();
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+// Edit Record (Load data into modal)
+function editRecord(table, id, modalId) {
+    apiCall(`api.php?table=${table}&id=${id}`)
+        .then(data => {
+            const modal = document.getElementById(modalId);
+            const form = modal.querySelector('form');
+            const title = modal.querySelector('h2 span');
+            
+            const editInput = form.querySelector('input[type="hidden"]');
+            if (editInput) editInput.value = id;
+            
+            form.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.type === 'hidden') return;
+                if (field.type === 'checkbox') {
+                    field.checked = data[field.id] == 1;
+                } else if (data[field.id] !== undefined) {
+                    field.value = data[field.id] || '';
+                }
+            });
+            
+            const idFields = ['routeId', 'categoryId', 'fleetId', 'facilityId'];
+            idFields.forEach(fid => {
+                const el = document.getElementById(fid);
+                if (el) el.disabled = true;
+            });
+            
+            title.textContent = 'Edit ' + title.textContent.replace('Add ', '');
+            openModal(modalId);
+        })
+        .catch(err => alert('Error loading data: ' + err.message));
+}
+
+// Edit Pickup (Special)
+function editPickup(id) {
+    apiCall(`api.php?table=pickup_logs&id=${id}`)
+        .then(data => {
+            document.getElementById('pickupEditId').value = data.LogID;
+            document.getElementById('pickupRoute').value = data.RouteID || '';
+            document.getElementById('pickupTruck').value = data.TruckID || '';
+            document.getElementById('pickupCategory').value = data.CategoryID || '';
+            document.getElementById('pickupFacility').value = data.FacilityID || '';
+            document.getElementById('pickupDate').value = data.CollectionDate || '';
+            document.getElementById('pickupStart').value = data.StartTime || '';
+            document.getElementById('pickupEnd').value = data.EndTime || '';
+            document.getElementById('pickupWeight').value = data.Weight || '';
+            document.getElementById('pickupRemarks').value = data.Remarks || '';
+            document.getElementById('pickupModalTitle').textContent = 'Edit Pickup Log';
+            openModal('pickupModal');
+        })
+        .catch(err => alert('Error loading pickup: ' + err.message));
+}
+
+// =============================================
+// INITIALIZATION
+// =============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('pickupDate');
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    // Check if already logged in (session)
+    // For demo, show login page
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+    
+    console.log('🚀 Waste Management System loaded');
+});
+</script>
+</body>
+</html>
