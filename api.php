@@ -1,7 +1,12 @@
 <?php
-// api.php - REST API for all CRUD operations
+// api.php - REST API for Remote Database
 
 require_once 'config.php';
+
+// Enable CORS for all requests
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $table = isset($_GET['table']) ? $_GET['table'] : null;
