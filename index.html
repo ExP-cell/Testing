@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ===== ALL YOUR EXISTING CSS HERE (keep exactly as you have it) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a3443; }
         
@@ -842,8 +843,15 @@
     </div>
 </div>
 
-<!-- ===== JAVASCRIPT ===== -->
+<!-- ===== JAVASCRIPT - UPDATED WITH API INTEGRATION ===== -->
 <script>
+// =============================================
+// API CONFIGURATION - CONNECT TO INFINITYFREE
+// =============================================
+
+// Update this URL to match your InfinityFree API endpoint
+const API_BASE = 'https://wastelog-api.fwh.is/api.php';
+
 // =============================================
 // APPLICATION STATE
 // =============================================
@@ -866,7 +874,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const password = document.getElementById('loginPassword').value;
     const errorEl = document.getElementById('loginError');
     
-    // Simple login check (in production, this should call the API)
+    // Hardcoded login for demo (in production, verify with API)
     if (username === 'admin' && password === 'admin123') {
         currentUser = { username: 'admin', fullname: 'Operations Team' };
         document.getElementById('loginPage').style.display = 'none';
@@ -946,9 +954,10 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
 });
 
 // =============================================
-// API CALLS
+// API CALLS - CONNECT TO INFINITYFREE
 // =============================================
 function apiCall(endpoint, method = 'GET', data = null) {
+    const url = API_BASE + (endpoint ? '?' + endpoint : '');
     const options = {
         method: method,
         headers: { 'Content-Type': 'application/json' }
@@ -956,71 +965,88 @@ function apiCall(endpoint, method = 'GET', data = null) {
     if (data) {
         options.body = JSON.stringify(data);
     }
-    return fetch(endpoint, options)
+    return fetch(url, options)
         .then(res => res.json())
         .then(result => {
             if (result.error) throw new Error(result.error);
             return result;
+        })
+        .catch(err => {
+            console.error('API Error:', err);
+            // Show error in UI
+            return { error: err.message };
         });
 }
 
 // =============================================
-// LOAD ALL DATA
+// LOAD ALL DATA FROM API
 // =============================================
 function loadAllData() {
     // Load routes
-    apiCall('api.php?table=collection_routes')
+    apiCall('table=collection_routes')
         .then(data => {
-            allData.routes = data;
-            renderRoutes();
-            populateSelects();
+            if (!data.error) {
+                allData.routes = data;
+                renderRoutes();
+                populateSelects();
+            }
         })
         .catch(err => console.error('Error loading routes:', err));
     
     // Load pickups
-    apiCall('api.php?table=pickup_logs')
+    apiCall('table=pickup_logs')
         .then(data => {
-            allData.pickups = data;
-            renderPickups();
-            renderRecentLogs();
-            updateDashboardStats();
-            updateReportStats();
+            if (!data.error) {
+                allData.pickups = data;
+                renderPickups();
+                renderRecentLogs();
+                updateDashboardStats();
+                updateReportStats();
+            }
         })
         .catch(err => console.error('Error loading pickups:', err));
     
     // Load categories
-    apiCall('api.php?table=waste_categories')
+    apiCall('table=waste_categories')
         .then(data => {
-            allData.categories = data;
-            renderCategories();
-            populateSelects();
+            if (!data.error) {
+                allData.categories = data;
+                renderCategories();
+                populateSelects();
+            }
         })
         .catch(err => console.error('Error loading categories:', err));
     
     // Load fleet
-    apiCall('api.php?table=collection_fleet')
+    apiCall('table=collection_fleet')
         .then(data => {
-            allData.fleet = data;
-            renderFleet();
-            updateFleetStats();
-            renderMaintenance();
+            if (!data.error) {
+                allData.fleet = data;
+                renderFleet();
+                updateFleetStats();
+                renderMaintenance();
+            }
         })
         .catch(err => console.error('Error loading fleet:', err));
     
     // Load facilities
-    apiCall('api.php?table=disposal_facilities')
+    apiCall('table=disposal_facilities')
         .then(data => {
-            allData.facilities = data;
-            renderFacilities();
-            populateSelects();
+            if (!data.error) {
+                allData.facilities = data;
+                renderFacilities();
+                populateSelects();
+            }
         })
         .catch(err => console.error('Error loading facilities:', err));
     
     // Load users
-    apiCall('api.php?table=users')
+    apiCall('table=users')
         .then(data => {
-            allData.users = data;
-            renderUsers();
+            if (!data.error) {
+                allData.users = data;
+                renderUsers();
+            }
         })
         .catch(err => console.error('Error loading users:', err));
 }
@@ -1315,7 +1341,7 @@ function saveRecord(e, table, modalId) {
     });
     
     const method = id ? 'PUT' : 'POST';
-    const url = `api.php?table=${table}${id ? '&id='+id : ''}`;
+    const url = `table=${table}${id ? '&id='+id : ''}`;
     
     apiCall(url, method, data)
         .then(result => {
@@ -1346,7 +1372,7 @@ function savePickup(e) {
     
     const id = document.getElementById('pickupEditId').value;
     const method = id ? 'PUT' : 'POST';
-    const url = `api.php?table=pickup_logs${id ? '&id='+id : ''}`;
+    const url = `table=pickup_logs${id ? '&id='+id : ''}`;
     
     apiCall(url, method, data)
         .then(result => {
@@ -1370,7 +1396,7 @@ function saveUser(e) {
         Role: document.getElementById('userRole').value
     };
     
-    apiCall('api.php?table=users', 'POST', data)
+    apiCall('table=users', 'POST', data)
         .then(result => {
             if (result.success) {
                 closeModal('userModal');
@@ -1386,7 +1412,7 @@ function saveUser(e) {
 function deleteRecord(table, id) {
     if (!confirm('Delete this record?')) return;
     
-    apiCall(`api.php?table=${table}&id=${id}`, 'DELETE')
+    apiCall(`table=${table}&id=${id}`, 'DELETE')
         .then(result => {
             if (result.success) {
                 loadAllData();
@@ -1401,7 +1427,7 @@ function deleteRecord(table, id) {
 function updateStatus(vehicleId, status) {
     if (!confirm(`Set vehicle ${vehicleId} to ${status}?`)) return;
     
-    apiCall(`api.php?table=collection_fleet&id=${vehicleId}`, 'PUT', { Status: status })
+    apiCall(`table=collection_fleet&id=${vehicleId}`, 'PUT', { Status: status })
         .then(result => {
             if (result.success) {
                 loadAllData();
@@ -1414,7 +1440,7 @@ function updateStatus(vehicleId, status) {
 
 // Edit Record (Load data into modal)
 function editRecord(table, id, modalId) {
-    apiCall(`api.php?table=${table}&id=${id}`)
+    apiCall(`table=${table}&id=${id}`)
         .then(data => {
             const modal = document.getElementById(modalId);
             const form = modal.querySelector('form');
@@ -1446,7 +1472,7 @@ function editRecord(table, id, modalId) {
 
 // Edit Pickup (Special)
 function editPickup(id) {
-    apiCall(`api.php?table=pickup_logs&id=${id}`)
+    apiCall(`table=pickup_logs&id=${id}`)
         .then(data => {
             document.getElementById('pickupEditId').value = data.LogID;
             document.getElementById('pickupRoute').value = data.RouteID || '';
@@ -1473,12 +1499,12 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.value = new Date().toISOString().split('T')[0];
     }
     
-    // Check if already logged in (session)
-    // For demo, show login page
+    // Show login page
     document.getElementById('loginPage').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
     
     console.log('🚀 Waste Management System loaded');
+    console.log('📡 API Endpoint:', API_BASE);
 });
 </script>
 </body>
