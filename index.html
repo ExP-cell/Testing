@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ===== ALL YOUR EXISTING CSS HERE (keep exactly as you have it) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a3443; }
         
@@ -843,14 +842,14 @@
     </div>
 </div>
 
-<!-- ===== JAVASCRIPT - UPDATED WITH API INTEGRATION ===== -->
+<!-- ===== JAVASCRIPT ===== -->
 <script>
 // =============================================
-// API CONFIGURATION - CONNECT TO INFINITYFREE
+// API CONFIGURATION
 // =============================================
 
-// Update this URL to match your InfinityFree API endpoint
-const API_BASE = 'https://wastelog-api.fwh.is/api.php';
+// Update this to your DCISM API URL
+const API_BASE = 'https://wastelog.dcism.org/api.php';
 
 // =============================================
 // APPLICATION STATE
@@ -874,7 +873,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const password = document.getElementById('loginPassword').value;
     const errorEl = document.getElementById('loginError');
     
-    // Hardcoded login for demo (in production, verify with API)
+    // Simple login check (in production, verify with API)
     if (username === 'admin' && password === 'admin123') {
         currentUser = { username: 'admin', fullname: 'Operations Team' };
         document.getElementById('loginPage').style.display = 'none';
@@ -954,7 +953,7 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
 });
 
 // =============================================
-// API CALLS - CONNECT TO INFINITYFREE
+// API CALLS
 // =============================================
 function apiCall(endpoint, method = 'GET', data = null) {
     const url = API_BASE + (endpoint ? '?' + endpoint : '');
@@ -973,13 +972,12 @@ function apiCall(endpoint, method = 'GET', data = null) {
         })
         .catch(err => {
             console.error('API Error:', err);
-            // Show error in UI
             return { error: err.message };
         });
 }
 
 // =============================================
-// LOAD ALL DATA FROM API
+// LOAD ALL DATA
 // =============================================
 function loadAllData() {
     // Load routes
